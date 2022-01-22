@@ -1,0 +1,32 @@
+[
+  // One or more blocks (rows) of links
+  {
+    // Title for the block.
+    // Title of first block is also title of site.
+    "title": "Nick's Nifty Portal",
+    "links": [
+      {
+        "title": "Jenkins",
+        "url": "/jenkins",
+        "icon": "/images/jenkins.svg"
+      },
+      {
+        "title": "Sonarqube",
+        "url": "/sonarqube",
+        "icon": "/images/sonar.png"
+      },
+      {
+        "title": "Nexus",
+        "url": "/nexus",
+        "icon": "/images/nexus.png"
+      },
+      {
+        "title": "Dependency Track",
+        "url": "/tracks",
+        "icon": "/images/dependency-track.png",
+        "size": "0.95em"
+      }
+
+    ]
+  }
+]
