@@ -1,61 +1,61 @@
 /* Include custom font(s) */
-@import "$lib/fonts/lato/lato.css";
-@import "$lib/fonts/oswald/oswald.css";
+@import '$lib/fonts/lato/lato.css';
+@import '$lib/fonts/oswald/oswald.css';
 
 html,
 body {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  box-sizing: border-box;
-  font-family: Oswald;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	width: 100vw;
+	height: 100vh;
+	box-sizing: border-box;
+	font-family: Oswald;
 }
 
 body {
-  color: white;
+	color: white;
 }
 
 a {
-  color: currentColor;
-  text-decoration: none;
+	color: currentColor;
+	text-decoration: none;
 }
 
 button {
-  font-family: Oswald;
-  background-color: var(--primary-200);
-  border: 1px solid var(--primary-600);
-  border-radius: 0.25rem;
-  font-size: 12pt;
+	font-family: Oswald;
+	background-color: var(--primary-200);
+	border: 1px solid var(--primary-600);
+	border-radius: 0.25rem;
+	font-size: 12pt;
 
-  &:hover,
-  &:focus {
-    background-color: var(--primary-600);
-    border-color: var(--primary-200);
-  }
-  &:disabled {
-    background-color: var(--primary-400);
-    color: #666;
-  }
+	&:hover,
+	&:focus {
+		background-color: var(--primary-600);
+		border-color: var(--primary-200);
+	}
+	&:disabled {
+		background-color: var(--primary-400);
+		color: #666;
+	}
 }
 
 fieldset {
-  margin-bottom: 0.5rem;
-  border-radius: 0.3rem;
-  border-color: hsl(0, 0%, 100%, 44%);
-  > legend {
-    margin: 0;
-    padding: 0.25rem 0.5rem;
-  }
+	margin-bottom: 0.5rem;
+	border-radius: 0.3rem;
+	border-color: hsl(0, 0%, 100%, 44%);
+	> legend {
+		margin: 0;
+		padding: 0.25rem 0.5rem;
+	}
 }
 
 input,
 select {
-  border: 2px solid var(--primary-400);
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  font-size: 1rem;
-  padding: 0.5rem;
-  width: 100%;
+	border: 2px solid var(--primary-400);
+	border-radius: 0.25rem;
+	box-sizing: border-box;
+	font-size: 1rem;
+	padding: 0.5rem;
+	width: 100%;
 }

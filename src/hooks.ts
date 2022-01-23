@@ -11,8 +11,8 @@ import type { User } from '$lib/models/user';
 config();
 
 export interface HandleParam {
-	event: RequestEvent<Locals>,
-	resolve: (request: RequestEvent) => unknown
+	event: RequestEvent<Locals>;
+	resolve: (request: RequestEvent) => unknown;
 }
 
 export const handle = async ({ event, resolve }: HandleParam) => {
@@ -22,7 +22,7 @@ export const handle = async ({ event, resolve }: HandleParam) => {
 	const sessionId = cookies[Redis.name];
 	if (sessionId) {
 		// only thing in the session is the user's info
-		const user = await Redis.get(sessionId) as User;
+		const user = (await Redis.get(sessionId)) as User;
 		if (user) {
 			event.locals.sessionId = sessionId;
 			event.locals.authenticated = true;
@@ -32,7 +32,7 @@ export const handle = async ({ event, resolve }: HandleParam) => {
 	return await resolve(event);
 };
 
-export async function getSession(request): Promise<Session> {
+export const getSession = async (request): Promise<Session> => {
 	const { authenticated, user } = request.locals ?? {};
 	return { authenticated, user };
-}
+};

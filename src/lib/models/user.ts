@@ -12,7 +12,7 @@ export interface User {
 	 */
 	mail: string;
 	/**
-	 * Login name of the user
+	 * unique name to identify user.
 	 */
 	userName: string;
 }

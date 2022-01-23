@@ -5,8 +5,8 @@ const name = 'portal_session';
 const maxAge = 60 * 60 * 24 * 7;
 
 const {
-  // Connection string for REDIS server
-  // Default redis://redis.lan:6379
+	// Connection string for REDIS server
+	// Default redis://redis.lan:6379
 	REDIS_HOST = 'redis://redis.lan:6379'
 	//
 } = process.env;

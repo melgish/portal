@@ -1,6 +1,7 @@
 import ldap from 'ldapjs';
 import type { User } from '$lib/models/user';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
+import { ssha } from './ssha';
 
 const {
 	// Connection string to the LDAP server
@@ -16,7 +17,7 @@ const {
 	LDAP_USERS_DN = 'ou=users,dc=example,dc=com',
 
 	// Filter to locate user in above DN
-	// ${userName} will be replaced by value from login page.
+	// ${userName} will be replaced by value from signIn page.
 	// Default: '(&(objectClass=person)(cn=${userName}))'
 	LDAP_USER_FILTER = '(&(objectClass=person)(cn=${userName}))',
 
@@ -33,8 +34,14 @@ const {
 	// Default: 'displayName'
 	LDAP_ATTR_DISPLAY_NAME = 'displayName',
 
-} = process.env;
+	// User to bind for reading db.
+	// Default: [none]
+	LDAP_BIND_DN,
 
+	// Password to bind for reading db.
+	// Default: [none]
+	LDAP_BIND_PASSWORD
+} = process.env;
 
 // Build connection options from environment
 const options = (() => {
@@ -46,6 +53,50 @@ const options = (() => {
 	}
 	return opts;
 })();
+
+/**
+ * Wraps client.bind in a promise,
+ *
+ * @param client Client instance.
+ * @param dn distinguished name of user to bind.
+ * @param password password to bind.
+ * @returns Promise
+ */
+const bind = (client: ldap.Client, dn: string, password: string) =>
+	new Promise((resolve, reject) => {
+		client.bind(dn, password, (err, result) => {
+			if (err) {
+				return reject(err);
+			}
+			return resolve(result);
+		});
+	});
+
+/**
+ * Wraps client.unbind in a promise.
+ * @param client
+ * @returns Promise to resolve on completion.
+ */
+const unbind = (client: ldap.Client) =>
+	new Promise<void>((resolve) => client.unbind(() => resolve()));
+
+/**
+ * Wraps client.modify in a promise.
+ * @param client Client to wrap
+ * @param dn Distinguished name of element to modify
+ * @param changes one or more changes to apply
+ * @returns Promise resolved when modifications are complete.
+ */
+const modify = (client: ldap.Client, dn: string, ...changes: ldap.Change[]) =>
+	 new Promise<void>((resolve, reject) => {
+			client.modify(dn, changes, (err) => {
+				if (err) {
+					return reject(err);
+				}
+				return resolve();
+			});
+		});
+
 
 /**
  * Use supplied LDAP client to lookup a user by their canonical name (cn)
@@ -62,7 +113,7 @@ const findUser = (client: ldap.Client, userName: string): Promise<User | null> =
 				filter: LDAP_USER_FILTER.replace('${userName}', userName),
 				scope: 'sub',
 				// Only pull in needed values.
-				attributes: ["dn", LDAP_ATTR_USER_NAME, LDAP_ATTR_DISPLAY_NAME, LDAP_ATTR_EMAIL]
+				attributes: ['dn', LDAP_ATTR_USER_NAME, LDAP_ATTR_DISPLAY_NAME, LDAP_ATTR_EMAIL]
 			},
 			[],
 			(err, res) => {
@@ -99,14 +150,14 @@ const validatePassword = async (
 	user: User,
 	password: string
 ): Promise<boolean> => {
-	return new Promise<boolean>((resolve) => {
-		if (!(user && password)) {
-			return resolve(false);
-		}
-		// Use id (dn) to validate the user.
-		client.bind(user.id, password, (err) => resolve(!err));
-	});
-}
+	try {
+		await bind(client, user.id, password);
+		await unbind(client);
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
 
 /**
  * Executes sign-in operation for the supplied user.
@@ -117,12 +168,23 @@ const validatePassword = async (
  */
 export const signIn = async (userName: string, password: string): Promise<User> => {
 	const client = ldap.createClient(options);
-	const user = await findUser(client, userName);
-	if (await validatePassword(client, user, password)) {
-		return user;
+	try {
+		if (LDAP_BIND_DN && LDAP_BIND_PASSWORD) {
+			await bind(client, LDAP_BIND_DN, LDAP_BIND_PASSWORD);
+		}
+		const user = await findUser(client, userName);
+		if (user && await validatePassword(client, user, password)) {
+			return user;
+		}
+	} catch (err) {
+		// Eat it as a failed login
+	}
+	finally {
+		await unbind(client);
+		client.destroy();
 	}
 	return null;
-}
+};
 
 /**
  * Updates user's password
@@ -131,13 +193,26 @@ export const signIn = async (userName: string, password: string): Promise<User> 
  * @param newPassword
  * @returns true if password was updated, otherwise false.
  */
-export const changePassword = async (userName: string, password: string, newPassword: string): Promise<boolean> => {
+export const changePassword = async (
+	user: User,
+	password: string,
+	newPassword: string
+): Promise<boolean> => {
 	const client = ldap.createClient(options);
-	const user = await findUser(client, userName);
-	if (await validatePassword(client, user, password)) {
-		// TODO: save new password.
+	try {
+		const change = new ldap.Change({
+			operation: 'replace',
+			modification: {userPassword: ssha(newPassword)}
+		});
+		await bind(client, user.id, password);
+		await modify(client, user.id, change);
 		return true;
 	}
-	return false;
-
-}
+	catch (err) {
+		return false;
+	}
+	finally {
+		await unbind(client);
+		client.destroy();
+	}
+};
