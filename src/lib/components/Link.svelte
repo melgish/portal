@@ -4,7 +4,7 @@
 	$: size = (link && link.size) || '1em';
 </script>
 
-<a href={link.url}>
+<a href={link.url} rel="external">
 	<header style="font-size:{size};">{link.title}</header>
 	<div>
 		<img alt={link.title} src={link.icon} />

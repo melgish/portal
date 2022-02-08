@@ -3,28 +3,33 @@
 	{
 		// Title for the block.
 		// Title of first block is also title of site.
-		title: "Nick's Nifty Portal",
-		links: [
+		"title": "Portal",
+		"links": [
 			{
-				title: 'Jenkins',
-				url: '/jenkins',
-				icon: '/images/jenkins.svg'
+				"title": "Jenkins",
+				"url": "/jenkins",
+				"icon": "/images/jenkins.svg"
 			},
 			{
-				title: 'Sonarqube',
-				url: '/sonarqube',
-				icon: '/images/sonar.png'
+				"title": "Sonarqube",
+				"url": "/sonarqube",
+				"icon": "/images/sonar.png"
 			},
 			{
-				title: 'Nexus',
-				url: '/nexus',
-				icon: '/images/nexus.png'
+				"title": "Nexus",
+				"url": "/nexus",
+				"icon": "/images/nexus.png"
 			},
 			{
-				title: 'Dependency Track',
-				url: '/tracks',
-				icon: '/images/dependency-track.png',
-				size: '0.95em'
+				"title": "Launches",
+				"url": "/launches",
+				"icon": "/images/rocket.svg"
+			},
+			{
+				"title": "Dependency Track",
+				"url": "/tracks",
+				"icon": "/images/dependency-track.png",
+				"size": "0.95em"
 			}
 		]
 	}
